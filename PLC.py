@@ -5,7 +5,7 @@ class PLC:
 
 	def __init__(self, ip):
 		self.plc = snap7.client.Client()
-		self.plc.connect(ip, 0, 1)
+		self.plc.connect(ip, 0, 1) ## Always 0, 1 for s1200/1500
 		self.plc.get_connected()
 		
 	def disconnect(self):
@@ -27,11 +27,9 @@ class PLC:
 		self.plc.db_write(dbNumber,start , data)
 		
 	def readUShort(self, dbNumber, byte):
-		fromByte = self.getDB(dbNumber, byte, 2)
+		fromByte = self.getDB(dbNumber, byte, 2) ## Short is 2 bytes
 		value = struct.unpack('>H', fromByte)[0]
-		return value
-		
-	
+		return value	
 		
 	def receivedMission(self):
 		## Mission_Start is on byte 4 
@@ -63,14 +61,14 @@ class PLC:
 		else:
 			return -1
 			
-	def getStatus(self):
+	def getState(self):
 		value = self.readUShort(311, 0)
 		if value == 3 or value == 4:
 			return value
 		else:
-			return 0
+			return value
 			
-	def setStatus(self, val):
+	def setState(self, val):
 		toByte = struct.pack('>H', val)
 		self.writeDB(310, toByte)
 		

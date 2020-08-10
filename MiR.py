@@ -11,6 +11,16 @@ class Robot:
 		self.headers = {}
 		self.setHeaders(auth)
 		
+	def setHeaders(self, auth, content = "application/json"):
+		self.headers["Content-Type"] = content
+		self.headers["Authorization"] = auth
+		
+	def printIP(self):
+		print("MiR ip address is: " + self.ip + "\n")
+	
+	def setHost(self, url = "/api/v2.0.0/"):
+		self.host = "http://" + self.ip + url
+		
 	def get(self, url):
 		status = requests.get(self.host + url, headers = self.headers)
 		self.statusCheck(status, url)
@@ -26,16 +36,9 @@ class Robot:
 		self.statusCheck(status, url)
 		return status
 	
-	def setHeaders(self, auth, content = "application/json"):
-		self.headers["Content-Type"] = content
-		self.headers["Authorization"] = auth
 		
-	def printIP(self):
-		print("MiR ip address is: " + self.ip + "\n")
-	
-	def setHost(self, url = "/api/v2.0.0/"):
-		self.host = "http://" + self.ip + url
 		
+	## Get functions
 	def getMissionList(self):
 		missionList = self.get("mission_groups/75b83d4a-5f93-11ea-88ff-0001299216bf/missions")
 		return missionList.json()
@@ -44,29 +47,37 @@ class Robot:
 		missionQueue = self.get("mission_queue")
 		return missionQueue.json()
 
-	def postMission(self, mission_id):
-		self.post('mission_queue/', mission_id)
-		
-	def getStatus(self):
+	def getStatus(self, prints = False):
 		status = requests.get(self.host + "status", headers = self.headers)
-		for key in status.json():
-			print(key,status.json()[key])
-			print("--"*20)
+		if prints:
+			for key in status.json():
+				print(key,status.json()[key])
+				print("--"*20)
 			
 		return status.json()
 		
+	def getState(self):
+		state = self.getStatus()["state_id"]
+		return state
+		
+	## Post functions
+	def postMission(self, mission_id):
+		self.post('mission_queue/', mission_id)
+		self.setState(3) ## 3 = Ready
+		
+	
+	## put functions	
+	def setState(self, value):
+		self.put("status", {"state_id": value})
+		
+	## Other
 	def clearError(self):
 		self.put("status", {"clear_error": True})
-		self.put("status", {"state_id": 3})
+		self.setState(3) ## 3 = Ready
 		print("Cleared Error")
 		
 	def statusCheck(self, status, type):
-		if status:
-			print(status)
-			#print("Sucessful connection to " + type +".\n\n")
-		else:
-			print(status)
-			#print("Failed to connect to '" + type+"'.\n")
+		print(status)
 		
 
 		

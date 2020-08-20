@@ -30,7 +30,10 @@ class PLC:
         return value
 
     def write_short(self, db, byte, start, number=1):
-        raw_byte = struct.pack('>%dh' % number, byte)
+        if type(byte) == list:
+            raw_byte = struct.pack('>%dh' % number, *byte)
+        else:
+            raw_byte = struct.pack('>%dh' % number, byte)
         self.plc.db_write(db, start, raw_byte)
 
     def write_bool(self, db, byte, start, number=1):
@@ -67,5 +70,5 @@ class PLC:
     def set_recent_robot_id(self, val):
         self.write_short(310, val, 8)
 
-    def write_queue(self, val, start):
-        self.write_short(314, val, start, number=1)
+    def write_queue(self, val, start, number=1):
+        self.write_short(314, val, start, number=number)

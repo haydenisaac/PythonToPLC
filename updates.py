@@ -11,9 +11,7 @@ def mission(plc, fleet, info):
 
 def mission_queue(plc, fleet):
     queue = fleet.get_mission_queue().json()[0:100]
-    db = 0
-    for item in queue:
-        plc.write_queue(item['id'], db)
-        db += 2
-        plc.write_queue(dic[item['state']], db)
-        db += 2
+    queue_list = [value for dictionary in queue for key, value in dictionary.items() if key not in ['url']]
+    queue_list[1::2] = [dic[x] for x in queue_list[1::2]]
+    plc.write_queue(queue_list, 0, len(queue_list))
+

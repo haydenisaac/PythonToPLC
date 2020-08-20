@@ -1,0 +1,19 @@
+# State Dictionary
+dic = {'Pending': 1, 'Executing': 2, 'Invalid': 3, 'Aborted': 4, 'Done': 5}
+
+
+def mission(plc, fleet, info):
+    (identity, guid, robot_id) = info
+    plc.set_recent_mission_id(identity)
+    plc.set_recent_mission(fleet.get_mission_number(guid))
+    plc.set_recent_robot_id(robot_id)
+
+
+def mission_queue(plc, fleet):
+    queue = fleet.get_mission_queue().json()[0:100]
+    db = 0
+    for item in queue:
+        plc.write_queue(item['id'], db)
+        db += 2
+        plc.write_queue(dic[item['state']], db)
+        db += 2

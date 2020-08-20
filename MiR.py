@@ -1,85 +1,69 @@
-import json, requests
+import requests
 
-class Robot:
-	
-	def __init__(self):
-		FILE = open('address.txt', 'r+')
-		self.ip, auth = FILE.readlines()
-		self.ip = self.ip.rstrip('\n')
-		FILE.close()
-		self.setHost()
-		self.headers = {}
-		self.setHeaders(auth)
-		
-	def setHeaders(self, auth, content = "application/json"):
-		self.headers["Content-Type"] = content
-		self.headers["Authorization"] = auth
-		
-	def printIP(self):
-		print("MiR ip address is: " + self.ip + "\n")
-	
-	def setHost(self, url = "/api/v2.0.0/"):
-		self.host = "http://" + self.ip + url
-		
-	def get(self, url):
-		status = requests.get(self.host + url, headers = self.headers)
-		self.statusCheck(status, url)
-		return status
-	
-	def post(self, url, jsonVal):
-		status = requests.post(self.host + url, json = jsonVal, headers = self.headers)
-		self.statusCheck(status, url)
-		return status
-		
-	def put(self, url, jsonVal):
-		status = requests.put(self.host + url, json = jsonVal, headers = self.headers)
-		self.statusCheck(status, url)
-		return status
-	
-		
-		
-	## Get functions
-	def getMissionList(self):
-		missionList = self.get("mission_groups/75b83d4a-5f93-11ea-88ff-0001299216bf/missions")
-		return missionList.json()
-	
-	def getMissionQueue(self):
-		missionQueue = self.get("mission_queue")
-		return missionQueue.json()
 
-	def getStatus(self, prints = False):
-		status = requests.get(self.host + "status", headers = self.headers)
-		if prints:
-			for key in status.json():
-				print(key,status.json()[key])
-				print("--"*20)
-			
-		return status.json()
-		
-	def getState(self):
-		state = self.getStatus()["state_id"]
-		return state
-		
-	## Post functions
-	def postMission(self, mission_id):
-		self.post('mission_queue/', mission_id)
-		self.setState(3) ## 3 = Ready
-		
-	
-	## put functions	
-	def setState(self, value):
-		self.put("status", {"state_id": value})
-		
-	## Other
-	def clearError(self):
-		self.put("status", {"clear_error": True})
-		self.setState(3) ## 3 = Ready
-		print("Cleared Error")
-		
-	def statusCheck(self, status, type):
-		print(status)
-		
+class Fleet:
 
-		
-	
-	
+    def __init__(self):
+        file = open('address.txt', 'r+')
+        self.ip, self.auth = file.readlines()
+        self.ip = self.ip.rstrip('\n')
+        self.auth = self.auth.rstrip('\n')
+        file.close()
+        self.host = "http://" + self.ip + "/api/v2.0.0/"
+        self.headers = {}
+        self.set_headers()
+
+    def set_headers(self, content="application/json"):
+        self.headers["Content-Type"] = content
+        self.headers["Authorization"] = self.auth
+
+    def print_ip(self):
+        print("MiR ip address is: " + self.ip + "\n")
+        print("Authorization code is: " + self.auth + "\n")
+
+    def get(self, url, value=None):
+        status = requests.get(self.host + url, json=value, headers=self.headers)
+        return status
+
+    def post(self, url, value):
+        status = requests.post(self.host + url, json=value, headers=self.headers)
+        return status
+
+    def put(self, url, value):
+        status = requests.put(self.host + url, json=value, headers=self.headers)
+        return status
+
+    # Get functions
+    def get_mission_list(self, guid="75b83d4a-5f93-11ea-88ff-0001299216bf"):
+        mission_list = self.get("mission_groups/" + guid + "/missions")
+        return mission_list
+
+    def get_mission_queue(self):
+        mission_queue = self.get("mission_scheduler")
+        return mission_queue
+
+    def get_mission_status(self, identity):
+        status = self.get("mission_scheduler/%d" % identity)
+        return status
+
+    # Post functions
+    def post_mission(self, mission_id):
+        state = self.post('mission_scheduler/', mission_id)
+        return state
+
+    def get_mission_number(self, guid):
+        mission_list = self.get_mission_list().json()
+        for i in range(len(mission_list)):
+            if mission_list[i]['guid'] == guid:
+                return i
+        return 0
+
+    def get_mission_state(self, identity):
+        state = self.get_mission_status(identity)
+        return state.json()['state']
+
+# Other Only on Robot
+# def clear_error(self):
+# self.put("status", {"clear_error": True})
+# self.set_state(3)  # 3 = Ready
+# print("Cleared Error")

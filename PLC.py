@@ -1,81 +1,71 @@
 import snap7
 import struct
 
+
 class PLC:
 
-	def __init__(self, ip):
-		self.plc = snap7.client.Client()
-		self.plc.connect(ip, 0, 1) ## Always 0, 1 for s1200/1500
-		self.plc.get_connected()
-		
-	def disconnect(self):
-		self.plc.disconnect()
+    def __init__(self, ip):
+        self.plc = snap7.client.Client()
+        self.plc.connect(ip, 0, 1)  # Always 0, 1 for s1200/1500
+        self.plc.get_connected()
 
-	def isConnected(self, ip_panel):
-		if self.plc.get_connected():
-			print("Connected to PLC at " + ip_panel + "\n" + "-"*40)
-			
-		else:
-			print("Not Connected\n")
-			
-	def getDB(self, dbNumber, start = 0, amount = 6):
-		register = self.plc.db_read(dbNumber, start, amount)
-		#print(register)
-		return register
-		
-	def writeDB(self, dbNumber, data, start = 0):
-		self.plc.db_write(dbNumber,start , data)
-		
-	def readUShort(self, dbNumber, byte):
-		fromByte = self.getDB(dbNumber, byte, 2) ## Short is 2 bytes
-		value = struct.unpack('>H', fromByte)[0]
-		return value	
-		
-	def receivedMission(self):
-		## Mission_Start is on byte 4 
-		fromByte = self.getDB(311, 4, 1)
-		## Check if first bit on
-		if fromByte[0]%2 == 1:
-			toByte = self.getDB(310, 4, 1)
-			if toByte[0]%2 != 1:
-				toByte[0] += 0x05
-			self.writeDB(310, toByte, start = 4)
-			return True
-		else:
-			
-			return False
-			
-	def completedMission(self):
-		toByte = self.getDB(310, 4, 1)
-		if toByte[0] > 3: 
-			toByte[0] += - 0x04
-		if toByte[0] < 2:
-			toByte[0] += 0x02
-		self.writeDB(310, toByte, start = 4)
-		pass;
-		
-	def getMission(self):
-		value = self.readUShort(311, 2)
-		if value < 5:
-			return value
-		else:
-			return -1
-			
-	def getState(self):
-		value = self.readUShort(311, 0)
-		if value == 3 or value == 4:
-			return value
-		else:
-			return value
-			
-	def setState(self, val):
-		toByte = struct.pack('>H', val)
-		self.writeDB(310, toByte)
-		
-	def setMission(self, val):
-		toByte = struct.pack('>H', val)
-		self.writeDB(310, toByte, start = 2)
-		
-		
-		
-		
+    def disconnect(self):
+        self.plc.disconnect()
+
+    def is_connected(self, ip_panel):
+        if self.plc.get_connected():
+            print("Connected to PLC at " + ip_panel + "\n" + "-" * 40)
+
+        else:
+            print("Not Connected\n")
+
+    def read_short(self, db, byte, number=1):
+        raw_byte = self.plc.db_read(db, byte, 2*number)  # Short is 2 bytes
+        value = struct.unpack('>%dh' % number, raw_byte)[0]
+        return value
+
+    def read_bool(self, db, byte, number=1):
+        raw_byte = self.plc.db_read(db, byte, number)
+        value = struct.unpack('>%dB' % number, raw_byte)[0]
+        return value
+
+    def write_short(self, db, byte, start, number=1):
+        raw_byte = struct.pack('>%dh' % number, byte)
+        self.plc.db_write(db, start, raw_byte)
+
+    def write_bool(self, db, byte, start, number=1):
+        raw_byte = struct.pack('>%dB' % number, byte)
+        self.plc.db_write(db, start, raw_byte)
+
+    def is_mission_start(self):
+        # Mission_Start is on byte 4
+        byte = self.read_bool(311, 4)
+        if byte & 1:
+            return True
+        else:
+            return False
+
+    def mission(self, method):
+        # Buttons are at byte 4 of DB310
+        byte_val = self.read_bool(310, 4)
+        byte_val = method(byte_val)
+        self.write_bool(310, byte_val, 4)
+
+    def get_mission(self):
+        value = self.read_short(311, 2)
+        if value < 6:
+            return value
+        else:
+            return -1
+
+    def set_recent_mission(self, val):
+        self.write_short(310, val, 2)
+
+    def set_recent_mission_id(self, val):
+        self.write_short(310, val, 6)
+
+    def set_recent_robot_id(self, val):
+        self.write_short(310, val, 8)
+
+    def write_queue(self, val, start):
+        self.write_short(314, val, start, number=1)

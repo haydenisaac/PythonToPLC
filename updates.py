@@ -15,3 +15,10 @@ def mission_queue(plc, fleet):
     queue_list[1::2] = [dic[x] for x in queue_list[1::2]]
     plc.write_queue(queue_list, 0, len(queue_list))
 
+
+def robot_status(robot):
+    status = robot.get_status().json()
+    print(status.keys())
+    keys = ['state_id', 'state_text', 'battery_percentage', 'mission_text']
+    values = [status.get(key) for key in keys]
+    print(values)

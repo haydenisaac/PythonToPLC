@@ -46,6 +46,14 @@ class Fleet:
         status = self.get("mission_scheduler/%d" % identity)
         return status
 
+    def get_robots(self):
+        status = self.get("robots")
+        return status
+
+    def get_robot_ip(self, identity):
+        status = self.get("robots/%d" % identity)
+        return status
+
     # Post functions
     def post_mission(self, mission_id):
         state = self.post('mission_scheduler/', mission_id)

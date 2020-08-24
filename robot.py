@@ -28,7 +28,7 @@ class Robot:
         return status
 
     def set_state(self, value):
-        # Note you can only pause or play, values 3 & 4
+        # Note. You can only pause or play, values 3 & 4
         status = self.put("status", {"state_id": value})
         return status
 

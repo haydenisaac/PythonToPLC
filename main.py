@@ -41,6 +41,12 @@ def main():
             if mission_id:
                 thread1 = threading.Thread(handshakes.accepted(plc1, fleet1, info))
                 thread1.start()
+            else:
+                print("Mission Failed to Send!")
+                print(mission_id.status_code)
+                print(type(mission_id))
+                thread4 = threading.Thread(handshakes.end(plc1))
+                thread4.start()
 
         # Update every 3 seconds
         if time_now - time_start > 3:

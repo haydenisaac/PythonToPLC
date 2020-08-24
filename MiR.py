@@ -55,7 +55,9 @@ class Fleet:
         return status
 
     # Post functions
-    def post_mission(self, mission_id):
+    def post_mission(self, mission_id, direct=None):
+        if direct is not None:
+            mission_id["robot_id"] = direct
         state = self.post('mission_scheduler/', mission_id)
         return state
 
@@ -69,5 +71,3 @@ class Fleet:
     def get_mission_state(self, identity):
         state = self.get_mission_status(identity)
         return state.json()['state']
-
-

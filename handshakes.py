@@ -6,13 +6,19 @@ import updates
 # Static methods
 def mission_begin(plc, fleet):
     plc.mission(mission_received)
-    mission = mn.get_mission_id(plc, fleet.get_mission_list().json())
-    mission_id = fleet.post_mission(mission)
-    identity = mission_id.json()['id']
-    guid = mission_id.json()['mission_id']
-    robot_id = mission_id.json()['robot_id']
-    return mission_id, (identity, guid, robot_id)
-
+    mission_list = fleet.get_mission_list()
+    if mission_list:
+        mission = mn.get_mission_id(plc, fleet.get_mission_list().json())
+        mission_id = fleet.post_mission(mission, 2)
+        if mission_id:
+            identity = mission_id.json()['id']
+            guid = mission_id.json()['mission_id']
+            robot_id = mission_id.json()['robot_id']
+            return mission_id, (identity, guid, robot_id)
+        else:
+            return mission_id, 0
+    else:
+        return mission_list, 0
 
 def accepted(plc, fleet, info):
     time.sleep(0.75)

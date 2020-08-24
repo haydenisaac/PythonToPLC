@@ -20,6 +20,7 @@ def main():
     fleet1 = Fleet()
     fleet1.print_ip()
 
+    # Search for available robots in the fleet
     robots_list = fleet1.get_robots()
     id_list = [val['id'] for val in robots_list.json()]
     ip_list = [fleet1.get_robot_ip(item).json()['ip'] for item in id_list]
@@ -34,12 +35,14 @@ def main():
     while True:
         time_now = time.time()
 
+        # Look for mission_start button
         if plc1.is_mission_start():
             mission_id, info = handshakes.mission_begin(plc1, fleet1)
             if mission_id:
                 thread1 = threading.Thread(handshakes.accepted(plc1, fleet1, info))
                 thread1.start()
 
+        # Update every 3 seconds
         if time_now - time_start > 3:
             print("Updating Queue...")
             thread2 = threading.Thread(updates.mission_queue(plc1, fleet1))

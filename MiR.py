@@ -70,8 +70,4 @@ class Fleet:
         state = self.get_mission_status(identity)
         return state.json()['state']
 
-# Other Only on Robot
-# def clear_error(self):
-# self.put("status", {"clear_error": True})
-# self.set_state(3)  # 3 = Ready
-# print("Cleared Error")
+

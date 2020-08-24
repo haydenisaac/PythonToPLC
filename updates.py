@@ -18,7 +18,6 @@ def mission_queue(plc, fleet):
 
 def robot_status(robot):
     status = robot.get_status().json()
-    print(status.keys())
-    keys = ['state_id', 'state_text', 'battery_percentage', 'mission_text']
+    keys = ['state_id', 'state_text', 'battery_percentage', 'mission_text', 'uptime', 'battery_time_remaining']
     values = [status.get(key) for key in keys]
     print(values)

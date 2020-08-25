@@ -37,14 +37,11 @@ def main():
 
         # Look for mission_start button
         if plc1.is_mission_start():
-            mission_id, info = handshakes.mission_begin(plc1, fleet1)
-            if mission_id:
+            status_code, info = handshakes.mission_begin(plc1, fleet1)
+            if status_code:
                 thread1 = threading.Thread(handshakes.accepted(plc1, fleet1, info))
                 thread1.start()
             else:
-                print("Mission Failed to Send!")
-                print(mission_id.status_code)
-                print(type(mission_id))
                 thread4 = threading.Thread(handshakes.end(plc1))
                 thread4.start()
 
@@ -53,7 +50,7 @@ def main():
             print("Updating Queue...")
             thread2 = threading.Thread(updates.mission_queue(plc1, fleet1))
             thread2.start()
-            thread3 = threading.Thread(updates.robot_status(robots[0]))
+            thread3 = threading.Thread(updates.robot_status(plc1, robots[0]))
             thread3.start()
             time_start = time.time()
 

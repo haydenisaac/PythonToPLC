@@ -68,6 +68,6 @@ class Fleet:
                 return i
         return 0
 
-    def get_mission_state(self, identity):
+    def get_mission_robot(self, identity):
         state = self.get_mission_status(identity)
-        return state.json()['state']
+        return state.json()['robot_id']

@@ -11,18 +11,17 @@ def mission(plc, fleet, info):
 
 def mission_queue(plc, fleet):
     queue = fleet.get_mission_queue().json()[0:100]
-    queue_list = [value for dictionary in queue for key, value in dictionary.items()]
-    ids = queue_list[::3]
-    queue_list[1::3] = [dic[x] for x in queue_list[1::3]]
-    queue_list[2::3] = [fleet.get_mission_robot(item) for item in ids]
-    plc.write_queue(queue_list, 0, int(len(queue_list)/3))
-    print("End Queue Update")
+    keys = ['id', 'state']
+    nested_list = [[dictionary[key] for key in keys] for dictionary in queue]
+    for niter in range(len(nested_list)):
+        nested_list[niter][1] = dic[nested_list[niter][1]]
+        if nested_list[niter][1] != 5:  # Don't care for missions that are already Done
+            nested_list[niter].append(id_dict[fleet.get_mission_robot(nested_list[niter][0])])
 
+        plc.write_queue(nested_list[niter], niter * 8, len(nested_list[niter]) - 1)
 
 def robot_status(plc, robot):
     status = robot.get_status().json()
     keys = ['state_id', 'state_text', 'battery_percentage', 'mission_text', 'uptime', 'battery_time_remaining']
     values = [status.get(key) for key in keys]
     plc.write_string(values[3], 310, 14)
-
-

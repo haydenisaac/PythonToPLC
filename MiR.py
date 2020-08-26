@@ -12,6 +12,12 @@ class Fleet:
         self.host = "http://" + self.ip + "/api/v2.0.0/"
         self.headers = {}
         self.set_headers()
+        mission_groups = self.get("mission_groups").json()
+        for item in mission_groups:
+            if item['name'] == "Tests and demos":
+                self.guid = item['guid']
+                break
+
 
     def set_headers(self, content="application/json"):
         self.headers["Content-Type"] = content
@@ -34,8 +40,8 @@ class Fleet:
         return status
 
     # Get functions
-    def get_mission_list(self, guid="75b83d4a-5f93-11ea-88ff-0001299216bf"):
-        mission_list = self.get("mission_groups/" + guid + "/missions")
+    def get_mission_list(self):
+        mission_list = self.get("mission_groups/" + self.guid + "/missions")
         return mission_list
 
     def get_mission_queue(self):

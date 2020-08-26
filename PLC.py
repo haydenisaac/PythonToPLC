@@ -7,10 +7,6 @@ class PLC:
     def __init__(self, ip):
         self.plc = snap7.client.Client()
         self.plc.connect(ip, 0, 1)  # Always 0, 1 for s1200/1500
-        self.plc.get_connected()
-
-    def disconnect(self):
-        self.plc.disconnect()
 
     def is_connected(self, ip_panel):
         if self.plc.get_connected():
@@ -54,69 +50,75 @@ class PLC:
             raw_byte = struct.pack(fmt, byte)
         return raw_byte
 
-    def is_mission_start(self):
+    # Check for functions
+    def is_mission_start(self, db, start=4):
         # Mission_Start is on byte 4
-        byte = self.read_bool(311, 4)
+        byte = self.read_bool(db, start)
         if byte & 1:
             return True
         else:
             return False
 
-    def mission(self, method):
-        # Buttons are at byte 4 of DB310
-        byte_val = self.read_bool(310, 4)
-        byte_val = method(byte_val)
-        self.write_bool(310, byte_val, 4)
+    def is_change_state(self, db, start):
+        byte = self.read_bool(db, start)
+        return byte
 
-    def get_mission(self):
-        value = self.read_short(311, 2)
+    def mission(self, method, db_in, db_out):
+        # Buttons are at byte 4 of DB310
+        byte_val = self.read_bool(db_out, 4)
+        print(byte_val)
+        byte_val = method(byte_val)
+        self.write_bool(db_out, byte_val, 4)
+
+    def get_mission(self, db):
+        value = self.read_short(db, 2)
         if value < 6:
             return value
         else:
             return -1
 
-    def set_recent_mission(self, val):
-        self.write_short(310, val, 2)
-
-    def set_recent_mission_id(self, val):
-        self.write_int(310, val, 6)
-
-    def set_recent_robot_id(self, val):
-        self.write_short(310, val, 10)
-
-    def write_queue(self, val, start, number=1):
-        print(val)
-        raw_byte = self.pack(val, '>'+'ihh'*number)
-        print(raw_byte)
-        self.plc.db_write(314, start, raw_byte)
-
-    def status_code(self, code):
-        self.write_short(310, code, 12)
-
-    # Mission manipulation
-
-    def get_mission_id(self, mission_list):
-        mission_num = self.get_mission()
+    def get_mission_id(self, mission_list, db):
+        mission_num = self.get_mission(db)
         mission_id = {"mission_id": mission_list[mission_num]["guid"]}
         return mission_id
+
+    @staticmethod
+    def check_state_type(byte_value):
+        if byte_value & 1:
+            return "Pause"
+        elif byte_value & 2:
+            return "Play"
+        elif byte_value & 4:
+            return "Reset"
+        elif byte_value & 8:
+            return "Charge"
 
     # Static Methods
     @staticmethod
     def mission_end(byte_value):
+        # Busy and Accept off
+        print(byte_value)
         if byte_value & 4:
             byte_value -= 4
         if byte_value & 1:
             byte_value -= 1
+        print(byte_value)
         return byte_value
 
     @staticmethod
     def mission_received(byte_value):
+        # Busy on
+        print(byte_value)
         if not byte_value & 4:
             byte_value += 4
+        print(byte_value)
         return byte_value
 
     @staticmethod
     def mission_accepted(byte_value):
+        # Accept on
+        print(byte_value)
         if not byte_value & 1:
             byte_value += 1
+        print(byte_value)
         return byte_value

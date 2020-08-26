@@ -18,6 +18,7 @@ def main():
     ip_panel = "192.168.10.5"
     plc_main = MainPage(ip_panel, (311, 310))
     plc_queue = QueuePage(ip_panel, (313, 314))
+    plc_status = QueuePage(ip_panel, (321, 320))
     plc_check = PLC(ip_panel)
 
     # Creating robot object
@@ -32,8 +33,13 @@ def main():
     robots = [Robot(ip) for ip in ip_list]
     robot_ids = {x: i + 1 for i, x in enumerate(id_list)}
     robot_ids[0] = 0
+    reversed_robot_ids = {i + 1: x for i, x in enumerate(id_list)}
+    reversed_robot_ids[0] = 0
     robot_pages = [RobotPage(ip_panel, (321, 320), identity) for identity in robot_ids]
     number_of_robots = len(robots)
+    robot_threads = [None] * number_of_robots
+    seen = [False] * number_of_robots
+    print(robot_threads[0])
 
     for robot in robots:
         robot.print_address()
@@ -60,10 +66,29 @@ def main():
                     fleet_thread.start()
 
         if plc_check.is_mission_start(321):
-            print("Started")
+            identity = plc_check.read_short(321, 6)
+            print(identity - 1)
+            try:
+                seen[identity - 1] = robot_threads[identity - 1].is_alive()
+            except AttributeError:
+                seen[identity - 1] = False
+            except IndexError:
+                continue
 
-        # Update every 5 seconds
-        if time_now - time_start > 5:
+            if not seen[identity - 1]:
+                status_code, info = handshakes.mission_begin(robot_pages[identity - 1], fleet1, robot_ids,
+                                                             robot=reversed_robot_ids[identity])
+                if status_code:
+                    robot_threads[identity - 1] = threading.Thread(target=handshakes.accepted,
+                                                                   args=(robot_pages[identity - 1], fleet1, info))
+                    robot_threads[identity - 1].start()
+                else:
+                    robot_threads[identity - 1] = threading.Thread(target=handshakes.end,
+                                                                   args=robot_pages[identity - 1])
+                    robot_threads[identity - 1].start()
+
+        # Update every 3 seconds
+        if time_now - time_start > 3:
             try:
                 seen_queue = queue_thread.is_alive()
             except UnboundLocalError:
@@ -74,6 +99,16 @@ def main():
                 queue_thread = threading.Thread(target=updates.mission_queue, args=(plc_queue, fleet1, robot_ids))
                 queue_thread.start()
                 time_start = time.time()
+
+            try:
+                seen_status = status_thread.is_alive()
+            except UnboundLocalError:
+                seen_status = False
+
+            if not seen_status:
+                print("Updating Status...")
+                status_thread = threading.Thread(target=updates.robot_status, args=(plc_status, robots))
+                status_thread.start()
 
         for i in range(number_of_robots):
             # Check for pause, play, reset

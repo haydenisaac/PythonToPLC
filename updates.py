@@ -7,6 +7,7 @@ def mission(plc, fleet, info):
     plc.set_recent_mission_id(identity)
     plc.set_recent_mission(fleet.get_mission_number(guid))
     plc.set_recent_robot_id(robot_id)
+    print("Updated info")
 
 
 def mission_queue(plc, fleet, id_dict):

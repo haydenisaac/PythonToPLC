@@ -51,7 +51,7 @@ class PLC:
         return raw_byte
 
     # Check for functions
-    def is_mission_start(self, db, start=4):
+    def is_mission_start(self, db=311, start=4):
         # Mission_Start is on byte 4
         byte = self.read_bool(db, start)
         if byte & 1:
@@ -63,7 +63,7 @@ class PLC:
         byte = self.read_bool(db, start)
         return byte
 
-    def mission(self, method, db_in, db_out):
+    def mission(self, method, db_out):
         # Buttons are at byte 4 of DB310
         byte_val = self.read_bool(db_out, 4)
         byte_val = method(byte_val)

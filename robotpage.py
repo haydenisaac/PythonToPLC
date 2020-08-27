@@ -28,10 +28,9 @@ class RobotPage(PLC):
         db = self.db_in
         return super().get_mission(db)
 
-    def mission(self, method, db_in=0, db_out=0):
-        db_in = self.db_in
+    def mission(self, method, db_out=0):
         db_out = self.db_out
-        return super().mission(method, db_in, db_out)
+        return super().mission(method, db_out)
 
     def get_mission_id(self, mission_list, db=0):
         db = self.db_in
@@ -39,3 +38,6 @@ class RobotPage(PLC):
 
     def check_state_type(self, byte_value):
         return super().check_state_type(byte_value)
+
+    def is_mission_acknowledged(self, start = 4):
+        return not super().is_mission_start(self.db_in, start)

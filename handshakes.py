@@ -1,4 +1,3 @@
-import time
 import updates
 
 
@@ -37,12 +36,16 @@ def change_state(plc, robot, byte_value):
 
 def accepted(plc, fleet, info):
     updates.mission(plc, fleet, info)
-    time.sleep(1)
+    prev_value = plc.is_mission_acknowledged()
     plc.mission(plc.mission_accepted)
-    time.sleep(1)
+    while True:
+        current_value = plc.is_mission_acknowledged()
+        if prev_value < current_value:
+            break
+        prev_value = current_value
+
     plc.mission(plc.mission_end)
 
 
 def end(plc):
-    time.sleep(1)
     plc.mission(plc.mission_end)

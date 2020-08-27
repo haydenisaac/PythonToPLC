@@ -39,18 +39,20 @@ def main():
     number_of_robots = len(robots)
     robot_threads = [None] * number_of_robots
     seen = [False] * number_of_robots
-    print(robot_threads[0])
 
     for robot in robots:
         robot.print_address()
 
     # Mission States
     print("Ready\n" + "-" * 40)
+    prev_main_state = plc_check.is_mission_start(311)
+    prev_robot_state = plc_check.is_mission_start(321)
     while True:
         time_now = time.time()
 
         # Look for mission_start button
-        if plc_check.is_mission_start(311):
+        current_main_val = plc_check.is_mission_start(311)
+        if prev_main_state < current_main_val:
             try:
                 seen_mission = fleet_thread.is_alive()
             except UnboundLocalError:
@@ -65,7 +67,10 @@ def main():
                     fleet_thread = threading.Thread(target=handshakes.end, args=plc_main)
                     fleet_thread.start()
 
-        if plc_check.is_mission_start(321):
+        prev_main_state = current_main_val
+        current_robot_value = plc_check.is_mission_start(321)
+
+        if prev_robot_state < current_robot_value:
             identity = plc_check.read_short(321, 6)
             try:
                 seen[identity - 1] = robot_threads[identity - 1].is_alive()
@@ -85,6 +90,8 @@ def main():
                     robot_threads[identity - 1] = threading.Thread(target=handshakes.end,
                                                                    args=robot_pages[identity - 1])
                     robot_threads[identity - 1].start()
+
+        prev_robot_state = current_robot_value
 
         # Update every 3 seconds
         if time_now - time_start > 3:

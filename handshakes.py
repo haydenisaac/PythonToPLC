@@ -3,7 +3,6 @@ import updates
 
 
 def mission_begin(plc, fleet, id_dict, robot=None):
-    time.sleep(1)
     plc.mission(plc.mission_received)
     mission_list = fleet.get_mission_list()
     plc.status_code(mission_list.status_code)
@@ -28,7 +27,6 @@ def change_state(plc, robot, byte_value):
     state = plc.check_state_type(byte_value)
     status = robot.change_state(state)
     if status:
-        print(status.json())
         print("All Good")
     else:
         pass

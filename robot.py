@@ -59,8 +59,9 @@ class Robot:
 
     def reset(self):
         # Clears an error after an E-Stop
-        self.put("status", {"clear_error": True})
+        status = self.put("status", {"clear_error": True})
         print("Cleared Error")
+        return status
 
     def pause(self):
         status = self.set_state(4)

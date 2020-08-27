@@ -10,7 +10,7 @@ def mission(plc, fleet, info):
 
 
 def mission_queue(plc, fleet, id_dict):
-    queue = fleet.get_mission_queue().json()[0:100]
+    queue = fleet.get_mission_queue().json()
     keys = ['id', 'state']
     nested_list = [[dictionary[key] for key in keys] for dictionary in queue]
     for niter in range(len(nested_list)):

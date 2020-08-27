@@ -66,7 +66,6 @@ class PLC:
     def mission(self, method, db_in, db_out):
         # Buttons are at byte 4 of DB310
         byte_val = self.read_bool(db_out, 4)
-        print(byte_val)
         byte_val = method(byte_val)
         self.write_bool(db_out, byte_val, 4)
 
@@ -97,28 +96,22 @@ class PLC:
     @staticmethod
     def mission_end(byte_value):
         # Busy and Accept off
-        print(byte_value)
         if byte_value & 4:
             byte_value -= 4
         if byte_value & 1:
             byte_value -= 1
-        print(byte_value)
         return byte_value
 
     @staticmethod
     def mission_received(byte_value):
         # Busy on
-        print(byte_value)
         if not byte_value & 4:
             byte_value += 4
-        print(byte_value)
         return byte_value
 
     @staticmethod
     def mission_accepted(byte_value):
         # Accept on
-        print(byte_value)
         if not byte_value & 1:
             byte_value += 1
-        print(byte_value)
         return byte_value

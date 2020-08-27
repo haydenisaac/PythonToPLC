@@ -45,7 +45,7 @@ class Fleet:
         return mission_list
 
     def get_mission_queue(self):
-        mission_queue = self.get("mission_scheduler")
+        mission_queue = self.get("mission_scheduler?limit=100")
         return mission_queue
 
     def get_mission_status(self, identity):

@@ -67,7 +67,6 @@ def main():
 
         if plc_check.is_mission_start(321):
             identity = plc_check.read_short(321, 6)
-            print(identity - 1)
             try:
                 seen[identity - 1] = robot_threads[identity - 1].is_alive()
             except AttributeError:

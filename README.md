@@ -3,12 +3,15 @@ Author:
 Hayden Isaac
 
 About:
-We're using python as an interpreter so that the PLC can communicate between the Mobile Industrial Robots. 
-The aim of this project is to be able to control a fleet of MiRs just using the PLC. This involves sending and retrieving information from the MiRs API.
-The current set up has two pallet stations, to collect/drop off a full pallet of 'Product', at opposite ends of the workshop. There will be a variety of missions
-to be sent from the HMI to the MiR's fleet software.
+Using a Python with snap7 to communicate between the PLC and the MiR's API.
+The PLC will send a mission to python, which will parse it and send the corresponding mission to the fleet with any additional options requested such as a specific robot to complete the task.
+The python is also updating the PLC with the status of each mission and robot every few seconds.
+Used in end of line processes where the robot moves the wrapped product to the storage area. This will reduce spillage caused by product falling off a forklift and the need for forklift drivers.
 
-Run:
-To use run main.py and wait unit it has imported all of the packages and is ready. At this point it should accept inputs from the HMI/PLC, process them and send the information
-to the fleet manager. While it also updates the PLC on the status of the MiR
+Usage:
+- Ensure the correct packages and files are downloaded and installed.
+- Turn on panel and fleet inside the panel
+- Turn on robot/s
+- Plug ethernet into the laptop and change to a valid static ip
+- Locate the files and run either main.py or run.sh (the latter calls main.py)
 

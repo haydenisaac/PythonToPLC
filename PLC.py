@@ -71,7 +71,7 @@ class PLC:
 
     def get_mission(self, db):
         value = self.read_short(db, 2)
-        if value < 6:
+        if value < 5:
             return value
         else:
             return -1

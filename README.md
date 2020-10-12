@@ -13,5 +13,5 @@ Usage:
 - Turn on panel and fleet inside the panel
 - Turn on robot/s
 - Plug ethernet into the laptop and change to a valid static ip
-- Locate the files and run either main.py or run.sh (the latter calls main.py)
+- Locate the files and run main.py
 

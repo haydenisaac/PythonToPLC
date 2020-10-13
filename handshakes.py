@@ -4,8 +4,8 @@ import updates
 def mission_begin(plc, fleet, id_dict, robot=None):
     plc.mission(plc.mission_received)
     mission_list = fleet.get_mission_list()
-    plc.status_code(mission_list.status_code)
     try:
+        plc.status_code(mission_list.status_code)
         mission = plc.get_mission_id(mission_list.json())
         mission_id = fleet.post_mission(mission, robot)  # Can have a specific robot in mind
         plc.status_code(mission_id.status_code)
@@ -20,15 +20,19 @@ def mission_begin(plc, fleet, id_dict, robot=None):
     except TypeError:
         print("Type Error mission failed")
         return 0, 0
+    except AttributeError:
+        print("Unble to connect to Fleet")
+        return 0, 0
 
 
 def change_state(plc, robot, byte_value):
     state = plc.check_state_type(byte_value)
-    status = robot.change_state(state)
-    if status:
-        print("All Good")
+    if robot.connect:
+        status = robot.change_state(state)
+        if status:
+            print("All Good")
     else:
-        pass
+        print("Robot not connected")
 
 
 def accepted(plc, fleet, info):

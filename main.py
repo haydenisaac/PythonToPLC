@@ -11,8 +11,7 @@ from robot import Robot
 
 
 def main():
-    # Parameters. Odd in, Even out.
-    global fleet_thread
+    # Parameters. Odd in from PLC, Even out to PLC.
     main_db = (311, 310)
     robot_db = (321, 320)
     queue_db = (313, 314)
@@ -27,15 +26,20 @@ def main():
     - Check: Check for signals in the PLC.
     '''
     print("Initialising PLC\n" + "-" * 40)
-
-    plc_main = MainPage(ip_panel, main_db)
+    connect = False
+    while not connect:
+        plc_main = MainPage(ip_panel, main_db)
+        connect = plc_main.is_connected(ip_panel)
     plc_queue = UpdatesPage(ip_panel, queue_db)
     plc_robots = UpdatesPage(ip_panel, robot_db)
     plc_check = PLC(ip_panel)
 
     # Creating fleet object
     print("Initialising Fleet\n" + "-" * 40)
-    fleet1 = Fleet()
+    connect = False
+    while not connect:
+        fleet1 = Fleet()
+        connect = fleet1.connected
     fleet1.print_ip()
 
 
@@ -81,8 +85,8 @@ def main():
                 fleet_thread = threading.Thread(target=handshakes.accepted, args=(plc_main, fleet1, info))
                 fleet_thread.start()
             else:
-                # noinspection PyTypeChecker
-                fleet_thread = threading.Thread(target=handshakes.end, args=plc_main)
+                print('turn off busy')
+                fleet_thread = threading.Thread(target=handshakes.end, args=(plc_main,))
                 fleet_thread.start()
         prev_main_state = current_main_state
 

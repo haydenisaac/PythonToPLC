@@ -1,4 +1,6 @@
 import requests
+import simplejson
+import json
 
 
 class Fleet:
@@ -12,11 +14,18 @@ class Fleet:
         self.host = "http://" + self.ip + "/api/v2.0.0/"
         self.headers = {}
         self.set_headers()
-        mission_groups = self.get("mission_groups").json()
-        for item in mission_groups:
-            if item['name'] == "200 Demo":
-                self.guid = item['guid']
-                break
+        self.connected = False
+        try:
+            mission_groups = self.get("mission_groups").json()
+            for item in mission_groups:
+                if item['name'] == "200 Demo":
+                    self.guid = item['guid']
+                    break
+            self.connected = True
+        except requests.exceptions.ConnectionError:
+            print("Failed to reach the fleet. Trying again.")
+        except simplejson.errors.JSONDecodeError:
+            print("Failed to gather missions from fleet")
 
     def set_headers(self, content="application/json"):
         self.headers["Content-Type"] = content
@@ -40,7 +49,10 @@ class Fleet:
 
     # Get functions
     def get_mission_list(self):
-        mission_list = self.get("mission_groups/" + self.guid + "/missions")
+        try:
+            mission_list = self.get("mission_groups/" + self.guid + "/missions")
+        except requests.exceptions.ConnectionError:
+            mission_list = None
         return mission_list
 
     def get_mission_queue(self):

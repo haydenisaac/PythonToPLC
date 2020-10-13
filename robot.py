@@ -9,20 +9,25 @@ class Robot:
         file.close()
         auth = auth.rstrip('\n')
         self.headers = {"Content-Type": "application/json", "Authorization": auth}
-        self.name = self.get_status().json()['robot_name']
-        mission_groups = self.get("mission_groups").json()
-        for item in mission_groups:
-            if item['name'] == "ROEQ Utility":
-                self.guid = item['guid']
-                break
+        self.connect = False
+        self.name = "ICS"
+        try:
+            self.name = self.get_status().json()['robot_name']
+            mission_groups = self.get("mission_groups").json()
+            for item in mission_groups:
+                if item['name'] == "ROEQ Utility":
+                    self.guid = item['guid']
+                    break
+            self.connect = True
+        except requests.exceptions.ConnectionError:
+            self.connect = False
 
     def print_address(self):
         print(self.host)
         print(self.name)
 
     def get(self, url, value=None):
-        status = requests.get(self.host + url, json=value, headers=self.headers)
-        return status
+        return requests.get(self.host + url, json=value, headers=self.headers)
 
     def put(self, url, value):
         status = requests.put(self.host + url, json=value, headers=self.headers)

@@ -11,8 +11,10 @@ class PLC:
     def is_connected(self, ip_panel):
         if self.plc.get_connected():
             print("Connected to PLC at " + ip_panel + "\n" + "-" * 40)
+            return True
         else:
             print("Not Connected\n")
+            return False
 
     def read_short(self, db, byte, number=1):
         raw_byte = self.plc.db_read(db, byte, 2 * number)  # Short is 2 bytes
@@ -92,6 +94,7 @@ class PLC:
     @staticmethod
     def mission_end(byte_value):
         # Busy and Accept off
+        print(byte_value & 4)
         if byte_value & 4:
             byte_value -= 4
         if byte_value & 1:

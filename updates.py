@@ -27,8 +27,9 @@ def mission_queue(plc, fleet, id_dict):
 
 def robot_status(plc, robots):
     for i, robot in enumerate(robots):
-        status = robot.get_status().json()
-        keys = ['state_id', 'uptime', 'battery_time_remaining', 'battery_percentage', 'mission_text']
-        values = [status.get(key) for key in keys]
-        # 284 is the start value in the db and repeats every 270 for each different robot.
-        plc.write_status(values, 284 + 270 * i)
+        if robot.connect:
+            status = robot.get_status().json()
+            keys = ['state_id', 'uptime', 'battery_time_remaining', 'battery_percentage', 'mission_text']
+            values = [status.get(key) for key in keys]
+            # 284 is the start value in the db and repeats every 270 for each different robot.
+            plc.write_status(values, 284 + 270 * i)

@@ -64,7 +64,7 @@ class PLC:
         return byte
 
     def mission(self, method, db_out):
-        # Buttons are at byte 4 of DB310
+        # Buttons are at byte 4
         byte_val = self.read_bool(db_out, 4)
         byte_val = method(byte_val)
         self.write_bool(db_out, byte_val, 4)
@@ -89,8 +89,7 @@ class PLC:
             return "Play"
         elif byte_value & 4:
             return "Reset"
-        elif byte_value & 8:
-            return "Charge"
+
 
     # Static Methods
     @staticmethod

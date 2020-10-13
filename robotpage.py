@@ -2,6 +2,11 @@ from PLC import PLC
 
 
 class RobotPage(PLC):
+    '''
+    Class designs to communicate PLC to specific Robots.
+    Locations in the db are slightly different to those on the main page.
+    There are a few different alterations to the methods.
+    '''
     def __init__(self, ip, db, identity, start=0):
         super().__init__(ip)
         self.robot_id = identity
@@ -39,5 +44,5 @@ class RobotPage(PLC):
     def check_state_type(self, byte_value):
         return super().check_state_type(byte_value)
 
-    def is_mission_acknowledged(self, start = 4):
+    def is_mission_acknowledged(self, start=4):
         return not super().is_mission_start(self.db_in, start)

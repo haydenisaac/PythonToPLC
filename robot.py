@@ -16,7 +16,6 @@ class Robot:
                 self.guid = item['guid']
                 break
 
-
     def print_address(self):
         print(self.host)
         print(self.name)

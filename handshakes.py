@@ -3,12 +3,10 @@ import updates
 
 def mission_begin(plc, fleet, id_dict, robot=None):
     plc.mission(plc.mission_received)
-    mission_lists = fleet.get_mission_list()  # Change for 200 fix
-    plc.status_code(mission_lists[0].status_code)
+    mission_list = fleet.get_mission_list()
+    plc.status_code(mission_list.status_code)
     try:
-        mission_list = mission_lists[0].json() + mission_lists[1].json()
-        print(mission_list)
-        mission = plc.get_mission_id(mission_list)
+        mission = plc.get_mission_id(mission_list.json())
         mission_id = fleet.post_mission(mission, robot)  # Can have a specific robot in mind
         plc.status_code(mission_id.status_code)
         try:
@@ -21,7 +19,7 @@ def mission_begin(plc, fleet, id_dict, robot=None):
             return mission_id, 0
     except TypeError:
         print("Type Error mission failed")
-        return mission_list, 0
+        return 0, 0
 
 
 def change_state(plc, robot, byte_value):
@@ -51,3 +49,4 @@ def accepted(plc, fleet, info):
 
 def end(plc):
     plc.mission(plc.mission_end)
+    return 0

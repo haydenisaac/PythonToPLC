@@ -1,7 +1,7 @@
 from PLC import PLC
 
 
-class QueuePage(PLC):
+class UpdatesPage(PLC):
     def __init__(self, ip, db):
         super().__init__(ip)
         self.db_in, self.db_out = db

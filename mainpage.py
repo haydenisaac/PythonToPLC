@@ -5,7 +5,6 @@ class MainPage(PLC):
     def __init__(self, ip, db):
         super().__init__(ip)
         self.db_in, self.db_out = db
-        print(self.db_in)
 
     def status_code(self, code):
         self.write_short(self.db_out, code, 12)
@@ -20,7 +19,7 @@ class MainPage(PLC):
         self.write_short(self.db_out, val, 10)
 
     def is_mission_start(self, db=0, start=4):
-        db = self.db_out
+        db = self.db_in
         return super().is_mission_start(db, start)
 
     def get_mission(self, db):
@@ -35,5 +34,5 @@ class MainPage(PLC):
         db = self.db_in
         return super().get_mission_id(mission_list, db)
 
-    def is_mission_acknowledged(self, start = 4):
+    def is_mission_acknowledged(self, start=4):
         return not super().is_mission_start(self.db_in, start)

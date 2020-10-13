@@ -14,7 +14,7 @@ class Fleet:
         self.set_headers()
         mission_groups = self.get("mission_groups").json()
         for item in mission_groups:
-            if item['name'] == "Mallusk Demo 1000":
+            if item['name'] == "200 Demo":
                 self.guid = item['guid']
                 break
 
@@ -40,10 +40,8 @@ class Fleet:
 
     # Get functions
     def get_mission_list(self):
-        mission_list1 = self.get("mission_groups/" + self.guid + "/missions")
-        mission_list2 = (self.get("mission_groups/45834968-edbf-11ea-a785-94c691a73b47/missions"))
-        print(mission_list1)
-        return mission_list1, mission_list2
+        mission_list = self.get("mission_groups/" + self.guid + "/missions")
+        return mission_list
 
     def get_mission_queue(self):
         mission_queue = self.get("mission_scheduler?limit=100")
@@ -69,8 +67,7 @@ class Fleet:
         return state
 
     def get_mission_number(self, guid):
-        mission_lists = self.get_mission_list()
-        mission_list = mission_lists[0].json() + mission_lists[1].json()
+        mission_list = self.get_mission_list().json()
         for i in range(len(mission_list)):
             if mission_list[i]['guid'] == guid:
                 return i

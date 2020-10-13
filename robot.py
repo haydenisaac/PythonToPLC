@@ -58,6 +58,7 @@ class Robot:
 
     def reset(self):
         # Clears an error after an E-Stop
+        # Still needs to be put into play mode
         status = self.put("status", {"clear_error": True})
         print("Cleared Error")
         return status

@@ -50,7 +50,6 @@ class PLC:
             raw_byte = struct.pack(fmt, byte)
         return raw_byte
 
-    # Check for functions
     def is_mission_start(self, db=311, start=4):
         # Mission_Start is on byte 4
         byte = self.read_bool(db, start)
@@ -90,8 +89,6 @@ class PLC:
         elif byte_value & 4:
             return "Reset"
 
-
-    # Static Methods
     @staticmethod
     def mission_end(byte_value):
         # Busy and Accept off

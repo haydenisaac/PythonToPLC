@@ -29,9 +29,6 @@ def change_state(plc, robot, byte_value):
         print("All Good")
     else:
         pass
-        '''
-        Charging Mission Here!
-        '''
 
 
 def accepted(plc, fleet, info):

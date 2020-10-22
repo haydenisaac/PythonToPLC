@@ -94,7 +94,6 @@ class PLC:
     @staticmethod
     def mission_end(byte_value):
         # Busy and Accept off
-        print(byte_value & 4)
         if byte_value & 4:
             byte_value -= 4
         if byte_value & 1:

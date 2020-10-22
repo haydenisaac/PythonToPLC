@@ -29,8 +29,10 @@ class Fleet:
     def is_connected(self):
         try:
             self.get("status/")
+            self.connected = True
             return True
         except requests.exceptions.ConnectionError:
+            self.connected = False
             return False
 
     def set_headers(self, content="application/json"):

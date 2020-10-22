@@ -29,8 +29,10 @@ class Robot:
     def is_connected(self):
         try:
             self.get_status()
+            self.connect = True
             return True
         except requests.exceptions.ConnectionError:
+            self.connect = False
             return False
 
     def get(self, url, value=None):

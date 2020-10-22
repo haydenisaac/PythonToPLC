@@ -4,6 +4,7 @@ from PLC import PLC
 class MainPage(PLC):
     def __init__(self, ip, db):
         super().__init__(ip)
+        self.count = 0
         self.db_in, self.db_out = db
 
     def status_code(self, code):
@@ -11,6 +12,13 @@ class MainPage(PLC):
 
     def set_recent_mission(self, val):
         self.write_short(self.db_out, val, 2)
+
+    def set_connection_status(self, connection):
+        self.count += 1
+        self.count = self.count % 1000
+        if connection:
+            self.write_short(self.db_out, self.count, 270)  # Write for fleet connection
+        self.write_short(self.db_out, self.count, 272)  # Write for python connection
 
     def set_recent_mission_id(self, val):
         self.write_int(self.db_out, val, 6)

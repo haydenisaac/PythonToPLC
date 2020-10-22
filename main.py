@@ -129,7 +129,6 @@ def main():
                 print("Updating Queue...")
                 queue_thread = threading.Thread(target=updates.mission_queue, args=(plc_queue, fleet1, robot_ids))
                 queue_thread.start()
-                time_start = time.time()
 
             try:
                 seen_status = status_thread.is_alive()
@@ -141,20 +140,32 @@ def main():
                 status_thread = threading.Thread(target=updates.robot_status, args=(plc_robots, robots))
                 status_thread.start()
 
-        if heartbeat_now - heartbeat_start > 1:
-            fleet_state = fleet1.is_connected()
-            robots_states = []
-            for robot in robots:
-                robots_states.append(robot.is_connected())
-            print(fleet_state)
-            print(robots_states)
-            heartbeat_start = heartbeat_now
+            time_start = time.time()
 
         for i in range(number_of_robots):
             # Check for pause, play, reset
             value = plc_check.is_change_state(robot_db[0], 10 + 2 * i)
             if value:
                 handshakes.change_state(robot_pages[i], robots[i], value)
+
+        try:
+            connection_status = connection_thread.is_alive()
+        except UnboundLocalError:
+            connection_status = False
+
+        if not connection_status:
+            print("connection")
+            connection_thread = threading.Thread(target=updates.connection, args=(fleet1, robots))
+            connection_thread.start()
+
+        try:
+            plc_status = plc_thread.is_alive()
+        except UnboundLocalError:
+            plc_status = False
+
+        if not plc_status:
+            plc_thread = threading.Thread(target=updates.plc_connection(plc_main,fleet1))
+            plc_thread.start()
 
         time.sleep(0.005)
 

@@ -1,6 +1,5 @@
 import requests
 import simplejson
-import json
 
 
 class Fleet:
@@ -26,6 +25,13 @@ class Fleet:
             print("Failed to reach the fleet. Trying again.")
         except simplejson.errors.JSONDecodeError:
             print("Failed to gather missions from fleet")
+
+    def is_connected(self):
+        try:
+            self.get("status/")
+            return True
+        except requests.exceptions.ConnectionError:
+            return False
 
     def set_headers(self, content="application/json"):
         self.headers["Content-Type"] = content

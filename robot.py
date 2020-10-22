@@ -26,6 +26,13 @@ class Robot:
         print(self.host)
         print(self.name)
 
+    def is_connected(self):
+        try:
+            self.get_status()
+            return True
+        except requests.exceptions.ConnectionError:
+            return False
+
     def get(self, url, value=None):
         return requests.get(self.host + url, json=value, headers=self.headers)
 
@@ -41,10 +48,6 @@ class Robot:
         # Note. You can only pause or play, values 3 & 4
         status = self.put("status", {"state_id": value})
         return status
-
-    def get_charge_mission(self):
-        status = self.get("mission_groups/" + self.guid + "/missions").json()
-        pass
 
     def change_state(self, state):
         if state == "Pause":

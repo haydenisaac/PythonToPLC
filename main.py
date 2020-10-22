@@ -18,6 +18,8 @@ def main():
     ip_panel = "192.168.10.5"
 
     time_start = time.time()
+    heartbeat_start = time.time()
+
     '''
     Creating PLC objects
     - Main: Front page on HMI. Has missions to send to fleet 
@@ -41,7 +43,6 @@ def main():
         fleet1 = Fleet()
         connect = fleet1.connected
     fleet1.print_ip()
-
 
     '''
     Create Robot objects.
@@ -74,6 +75,7 @@ def main():
 
     while True:
         time_now = time.time()  # Start Timer
+        heartbeat_now = time.time()
 
         # Look for mission_start button
         current_main_state = plc_check.is_mission_start(main_db[0])
@@ -85,7 +87,6 @@ def main():
                 fleet_thread = threading.Thread(target=handshakes.accepted, args=(plc_main, fleet1, info))
                 fleet_thread.start()
             else:
-                print('turn off busy')
                 fleet_thread = threading.Thread(target=handshakes.end, args=(plc_main,))
                 fleet_thread.start()
         prev_main_state = current_main_state
@@ -140,14 +141,20 @@ def main():
                 status_thread = threading.Thread(target=updates.robot_status, args=(plc_robots, robots))
                 status_thread.start()
 
+        if heartbeat_now - heartbeat_start > 1:
+            fleet_state = fleet1.is_connected()
+            robots_states = []
+            for robot in robots:
+                robots_states.append(robot.is_connected())
+            print(fleet_state)
+            print(robots_states)
+            heartbeat_start = heartbeat_now
+
         for i in range(number_of_robots):
             # Check for pause, play, reset
             value = plc_check.is_change_state(robot_db[0], 10 + 2 * i)
             if value:
                 handshakes.change_state(robot_pages[i], robots[i], value)
-
-        # cycle_time = time.time() - time_now
-        # print(cycle_time)
 
         time.sleep(0.005)
 

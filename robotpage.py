@@ -2,11 +2,11 @@ from PLC import PLC
 
 
 class RobotPage(PLC):
-    '''
+    """
     Class designs to communicate PLC to specific Robots.
     Locations in the db are slightly different to those on the main page.
     There are a few different alterations to the methods.
-    '''
+    """
     def __init__(self, ip, db, identity, start=0):
         super().__init__(ip)
         self.robot_id = identity

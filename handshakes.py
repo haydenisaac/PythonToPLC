@@ -21,7 +21,7 @@ def mission_begin(plc, fleet, id_dict, robot=None):
         print("Type Error mission failed")
         return 0, 0
     except AttributeError:
-        print("Unble to connect to Fleet")
+        print("Unable to connect to Fleet")
         return 0, 0
 
 

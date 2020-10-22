@@ -46,6 +46,10 @@ class Robot:
         status = self.get("status")
         return status
 
+    def get_register(self, register):
+        status = self.get("registers/%s" % register)
+        return status
+
     def set_state(self, value):
         # Note. You can only pause or play, values 3 & 4
         status = self.put("status", {"state_id": value})

@@ -167,7 +167,7 @@ def main():
             plc_thread = threading.Thread(target=updates.plc_connection(plc_main,fleet1))
             plc_thread.start()
 
-        time.sleep(0.005)
+
 
 
 if __name__ == "__main__":

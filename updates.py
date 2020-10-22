@@ -30,14 +30,18 @@ def robot_status(plc, robots):
         if robot.connect:
             status = robot.get_status()
             if status:
+
                 status_val = status.json()
+                register_value = robot.get_register(50).json()
+
                 keys = ['state_id', 'uptime', 'battery_time_remaining', 'battery_percentage', 'mission_text']
                 values = [status_val.get(key) for key in keys]
+                values.append(int(register_value["value"]))
         else:
-            values = [0, 00000, 00000, 0.0, "No Connection"]
+            values = [0, 00000, 00000, 0.0, "No Connection", 0]
 
         # 284 is the start value in the db and repeats every 270 for each different robot.
-        plc.write_status(values, 284 + 270 * i)
+        plc.write_status(values, 294 + 280 * i)
 
 
 def connection(fleet, robots):

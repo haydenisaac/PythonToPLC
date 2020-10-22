@@ -154,7 +154,6 @@ def main():
             connection_status = False
 
         if not connection_status:
-            print("connection")
             connection_thread = threading.Thread(target=updates.connection, args=(fleet1, robots))
             connection_thread.start()
 

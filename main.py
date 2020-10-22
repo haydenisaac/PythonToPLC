@@ -32,10 +32,11 @@ def main():
     while not connect:
         plc_main = MainPage(ip_panel, main_db)
         connect = plc_main.is_connected(ip_panel)
+
     plc_queue = UpdatesPage(ip_panel, queue_db)
     plc_robots = UpdatesPage(ip_panel, robot_db)
     plc_check = PLC(ip_panel)
-
+    hb_main = MainPage(ip_panel, main_db)
     # Creating fleet object
     print("Initialising Fleet\n" + "-" * 40)
     connect = False
@@ -163,7 +164,7 @@ def main():
             plc_status = False
 
         if not plc_status:
-            plc_thread = threading.Thread(target=updates.plc_connection(plc_main,fleet1))
+            plc_thread = threading.Thread(target=updates.plc_connection(hb_main, fleet1))
             plc_thread.start()
 
 

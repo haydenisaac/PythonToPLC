@@ -18,7 +18,6 @@ def main():
     ip_panel = "192.168.10.5"
 
     time_start = time.time()
-    heartbeat_start = time.time()
 
     '''
     Creating PLC objects
@@ -76,7 +75,7 @@ def main():
 
     while True:
         time_now = time.time()  # Start Timer
-        heartbeat_now = time.time()
+        
 
         # Look for mission_start button
         current_main_state = plc_check.is_mission_start(main_db[0])
